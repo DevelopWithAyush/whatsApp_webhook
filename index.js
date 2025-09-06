@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
     }
 }); 
 
-app.post('/', TryCatch(async (req, res, next) => {
+app.post('/',async (req, res) => {
     const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
     console.log(`\n\nWebhook received ${timestamp}\n`);
     console.log(JSON.stringify(req.body, null, 2));
@@ -50,7 +50,7 @@ app.post('/', TryCatch(async (req, res, next) => {
         console.error("❌ Error handling WhatsApp webhook:", err);
         res.sendStatus(500);
     }
-}));
+});
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
