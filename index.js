@@ -23,12 +23,34 @@ app.get('/', (req, res) => {
     }
 }); 
 
-app.post('/', (req, res) => {
+app.post('/', TryCatch(async (req, res, next) => {
     const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
     console.log(`\n\nWebhook received ${timestamp}\n`);
     console.log(JSON.stringify(req.body, null, 2));
-    res.status(200).end();
-});
+
+    try {
+        // Extract the payload
+        const entry = req.body?.entry?.[0];
+        const changes = entry?.changes?.[0];
+        const value = changes?.value;
+        const message = value?.messages?.[0];
+
+        if (message && message.type === "text") {
+            const from = message.from; // Sender's WhatsApp number
+            const text = message.text.body; // The actual text message
+
+            console.log(`📩 Message from: ${from}`);
+            console.log(`💬 Text: ${text}`);
+        } else {
+            console.log("⚠️ No text message found in webhook payload");
+        }
+
+        res.sendStatus(200);
+    } catch (err) {
+        console.error("❌ Error handling WhatsApp webhook:", err);
+        res.sendStatus(500);
+    }
+}));
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
